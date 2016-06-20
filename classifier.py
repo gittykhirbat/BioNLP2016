@@ -841,8 +841,8 @@ def partitioned_classifier():
 if __name__ == "__main__":
 	#mode = "test" # 
 	mode = "dev" 
-	devdir = "data/BioNLP-ST-2016_SeeDev-binary_dev/"
-	traindir = "data/BioNLP-ST-2016_SeeDev-binary_train/"
+	devdir = "data/train_data/"
+	traindir = "data/test_data"
 
 	train_only_gold_relations= get_gold_relations(traindir)
 	dev_gold_relations = get_gold_relations(devdir)
