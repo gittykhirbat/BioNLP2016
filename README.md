@@ -27,13 +27,14 @@ The archive contains 3 python files. They are:
 ### Running the code 
 The code can be run by following these steps -
 <ol>
-<li> DATA - Create a sub-directory "data" within the directory of this code.
+<li> Load Data - Create a sub-directory "data" within the directory of this code.
 <ol>
   <li> Store the training data in a sub-directory named "training_data" within this directory like this: "/data/train_data/" </li>
   <li> Store the test data in a sub-directory named "test_data" within this directory like this: "/data/test_data/" </li>
 </ol>
 </li>
-<li>
+<li> Depending on your system, open the corresponding command line interface (Terminal, Command Prompt). Set the current working directory as the directory containing the file classifier.py. <br>
+Run the code by: python classifier.py
 </li>
 </ol>
 
