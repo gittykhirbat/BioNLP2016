@@ -26,11 +26,17 @@ The archive contains 3 python files. They are:
 
 ### Running the code 
 The code can be run by following these steps -
-1. DATA - Create a sub-directory "data" within the directory of this code.
-  a) Store the training data in a sub-directory named "training_data" within this directory like this: "/data/training_data/"
-  b) Store the test data in a sub-directory named "test_data" within this directory like this: "/data/test_data/"
-  
-2. 
+<ol>
+<li> DATA - Create a sub-directory "data" within the directory of this code.
+<ol>
+  <li> Store the training data in a sub-directory named "training_data" within this directory like this: "/data/training_data/" </li>
+  <li> Store the test data in a sub-directory named "test_data" within this directory like this: "/data/test_data/" </li>
+</ol>
+</li>
+<li>
+</li>
+</ol>
+
 
 It is essential that your data is present in the same directory as this code is.
 The data should be saved in this format:
