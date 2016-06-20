@@ -18,9 +18,11 @@ This code requires Python to be installed on your system. It is compatible with 
 
 ### Installing 
 The archive contains 3 python files. They are:
-1. classifier.py - Contains main() function, classifier and feature information
-2. preprocess.py - Code to preprocess data using corenlpparse.py and produces data points (entity pairs).
-3. corenlpparse.py - Contains methods to read data from files using Stanford's CoreNLP.
+<ol>
+<li> classifier.py - Contains main() function, classifier and feature information </li>
+<li> preprocess.py - Code to preprocess data using corenlpparse.py and produces data points (entity pairs). </li>
+<li> corenlpparse.py - Contains methods to read data from files using Stanford's CoreNLP. </li>
+</ol>
 
 ### Running the code 
 The code can be run by following these steps -
