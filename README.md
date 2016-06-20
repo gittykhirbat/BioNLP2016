@@ -4,10 +4,10 @@ University of Melbourne's SeeDev binary event extraction system for BioNLP-Share
 Authors: Nagesh PC, Gitansh Khirbat <br>
 Date: 20th June 2016 <br>
 Project: SeeDev binary event extraction of BioNLP-Shared Task 2016.<br>
-Paper: <Link goes here when the paper is up on ACL-web>
+Paper: {Link goes here when the paper is up on ACL-web}
 
-PROJECT INFORMATION
--------------------
+## PROJECT INFORMATION
+
 This is the public release of the University of Melbourne's system for SeeDev binary event extraction of BioNLP-Shared Task 2016.
 This task addresses the extraction of genetic and molecular mechanisms that regulate plant seed development from the natural language
 text of the published literature. This system makes use of support vector machine classifier with linear kernel powered by a rich set
@@ -15,9 +15,10 @@ of features and achieved second-best results.
 
 More details about the task can be obtained from: http://2016.bionlp-st.org/tasks/seedev
 
-GETTING THE CODE UP
--------------------
-Prerequisites: This code requires Python to be installed on your system. It is compatible with Python2 and Python3.
+## GETTING THE CODE UP
+
+### Prerequisites
+This code requires Python to be installed on your system. It is compatible with Python2 and Python3.
 If you do not have Python, it can be downloaded from https://www.python.org/downloads/
 
 Installing: The archive contains 3 python files. They are -
