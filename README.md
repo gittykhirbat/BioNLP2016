@@ -34,7 +34,7 @@ The code can be run by following these steps -
 </ol>
 </li>
 <li> Depending on your system, open the corresponding command line interface (Terminal, Command Prompt). Set the current working directory as the directory containing the file classifier.py. <br>
-Run the code by: python classifier.py
+Run the code by: python classifier.py <br>
 </li>
 <li>
 The code will produce classifier result (Precision, Recall and F-Score) in the command line interface for each relation, followed by the overall results.
@@ -44,11 +44,11 @@ The code will produce classifier result (Precision, Recall and F-Score) in the c
 
 ## Contributing
 
-Fork it!
-Create your feature branch: git checkout -b my-new-feature
-Commit your changes: git commit -am 'Add some feature'
-Push to the branch: git push origin my-new-feature
-Submit a pull request :D
+Fork it!<br>
+Create your feature branch: git checkout -b my-new-feature <br>
+Commit your changes: git commit -am 'Add some feature' <br>
+Push to the branch: git push origin my-new-feature <br>
+Submit a pull request :D 
 
 ## History
 
