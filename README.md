@@ -29,7 +29,7 @@ The code can be run by following these steps -
 <ol>
 <li> DATA - Create a sub-directory "data" within the directory of this code.
 <ol>
-  <li> Store the training data in a sub-directory named "training_data" within this directory like this: "/data/training_data/" </li>
+  <li> Store the training data in a sub-directory named "training_data" within this directory like this: "/data/train_data/" </li>
   <li> Store the test data in a sub-directory named "test_data" within this directory like this: "/data/test_data/" </li>
 </ol>
 </li>
