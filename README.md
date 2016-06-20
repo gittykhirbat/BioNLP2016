@@ -24,7 +24,7 @@ The archive contains 3 python files. They are:
 <li> corenlpparse.py - Contains methods to read data from files using Stanford's CoreNLP. </li>
 </ol>
 
-### Running the code 
+### Using the code 
 The code can be run by following these steps -
 <ol>
 <li> Load Data - Create a sub-directory "data" within the directory of this code.
@@ -36,40 +36,24 @@ The code can be run by following these steps -
 <li> Depending on your system, open the corresponding command line interface (Terminal, Command Prompt). Set the current working directory as the directory containing the file classifier.py. <br>
 Run the code by: python classifier.py
 </li>
+<li>
+The code will produce classifier result (Precision, Recall and F-Score) in the command line interface for each relation, followed by the overall results.
+</li>
 </ol>
 
 
-It is essential that your data is present in the same directory as this code is.
-The data should be saved in this format:
-  a) Training data: 
-
-
-
-Installation
-------------
-
-
-TODO: Describe the installation process
-
-Usage
-
-TODO: Write usage instructions
-
-Contributing
+## Contributing
 
 Fork it!
 Create your feature branch: git checkout -b my-new-feature
 Commit your changes: git commit -am 'Add some feature'
 Push to the branch: git push origin my-new-feature
 Submit a pull request :D
-History
+
+## History
 
 TODO: Write history
 
-Credits
-
-TODO: Write credits
-
-License
+## License
 
 TODO: Write license
