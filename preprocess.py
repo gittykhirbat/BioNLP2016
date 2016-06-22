@@ -18,28 +18,15 @@ def get_all_relations(a2file):
 	except:
 		print >>sys.stderr, "no a2file ", a2file , "empty relations"
 
-	#print "all relations", relations
 	return relations
 		
 
 #############		
 def get_relation_label(entity1, entity2, a2filedata ):
-	#if et1== "Gene" and et2 == "Genotype" : return "Presence_In_Genotype"
-	#else: return None
-	
 	import re
-	#E6      Regulates_Development_Phase Agent:T39 Development:T36
-
-	#TODO - why are we getting the braces around the label.. shud just get the label like Regulated_Development_Phase .. 
 	m = re.match( ".*\s+(.*)\s(\w+):"+entity1.entityId+"\s(\w+):"+entity2.entityId+"[^\d]" , a2filedata, re.DOTALL) 
 	if m :
-		#print "found a match ", m.groups()
-		#lets only look for PROTEIN_DOMAIN_OF relation for now
 		relation_label = m.group(1)
-		#if "Is_Protein_Domain_Of" == relation_label :
-		#	return 1
-		#else: 	
-		#	return -1 
 		return relation_label
 	else:
 		return  "NOT_RELATED"
@@ -64,24 +51,6 @@ def get_entitylist_from_a1file( a1file, nlpObj ):
 			sys.exit(-1)
 			continue
 
-#		if sentenceId == -1 : 
-#			#trying to adjust entities within a sentence -- annotation errors?
-#			prevSentBoundary = 0
-#			sentNo    = 0 
-#			#print >>sys.stderr, "searching problematic", entityDesc, " in ", nlpObj.rawText
-#			for sentRawText in nlpObj.rawText:
-#				if entityDesc in sentRawText :
-#					print >>sys.stderr, "fixing erroenous entity annotation from ", start, end, 
-#					sentenceId = sentNo
-#					start =  prevSentBoundary + sentRawText.find(entityDesc) 
-#					end = start+ len(entityDesc)
-#					print >>sys.stderr, " to ", start, end
-#					break
-#				else:
-#					#print >>sys.stderr, "not found ", entityDesc , " in ", sentRawText
-#					prevSentBoundary = nlpObj.sentenceBoundaries[ sentNo ]
-#					sentNo += 1
-
 		if sentenceId == -1 : # if it is still -1, give up
 			print >>sys.stderr, "giving up",
 			print >>sys.stderr, "invalid entity ?.." , documentId, sentenceId, entityType, entityDesc, start, end
@@ -92,62 +61,6 @@ def get_entitylist_from_a1file( a1file, nlpObj ):
 		listOfEntities.append(  clsEntity(entityId, entityDesc, entityType, start, end, sentenceId, documentId) )
 
 	return listOfEntities
-
-#############################3
-#def get_entity_group(etype ) : #entity type to group
-#	if etype in ["RNA","Protein","Protein_Family","Protein_Complex","Protein_Domain"]:	return "DNA_Product"
-#	if etype in ["Gene","Gene_Family","Box,Promoter"]:					return "DNA" 			
-#	if etype in ["DNA_Product","Hormone"]:							return "Functional_Molecule"	
-#	if etype in ["DNA","Functional_Molecule"]:						return "Molecule" 		
-#	if etype in ["Regulatory_Network","Pathway"]:						return "Dynamic_Process"   
-#	if etype in ["Tissue","Development_Phase","Genotype"]:					return "Internal_Factor"   
-#	if etype in ["Internal_Factor","Environmental_Factor"]:					return "Factor"			
-#
-#	return etype #if no grouping possible
-#	#print >>sys.stderr, "invalid entity type ", etype
-#	#sys.exit(-1)
-#
-#
-#########################			
-#def  relation_from_entity_signature(e1, e2): 
-#	#allowed relation type from entity signature
-#	et1 = e1.entityType
-#        et2=  e2.entityType
-#	eg1 =  get_entity_group(et1 )
-#	eg2 =  get_entity_group(et2 )
-#
-#	for (relset, arg1set, arg2set) in 	[ \
-#		(["Binds_To"], ["Functional_Molecule"], ["Molecule"] 			) , \
-#		(["Composes_Primary_Structure"],  ["Box", "Promoter"] , ["DNA"] 	), \
-#		(["Composes_Protein_Complex"], ["Amino_Acid_Sequence", "Protein", "Protein_Family", "Protein_Complex", "Protein_Domain"],["Protein_Complex"]),\
-#		(["Exists_At_Stage"], ["Functional_Molecule"], ["Development","Development_Phase"]) , \
-#		(["Exists_In_Genotype"], ["Molecule"] , ["Genotype"] ),\
-#		(["Interacts_With"], ["Molecule"], ["Molecule"]),\
-#		(["Is_Involved_In_Process"], ["Molecule"] , ["Dynamic_Process"] ),\
-#		(["Is_Member_Of_Family"],["Gene","Gene_Family","Protein","Protein_Domain","Protein_Family","RNA"],["Gene_Family","Protein_Family","RNA"]),\
-#		(["Is_Protein_Domain_Of"],["Protein_Domain"],["DNA_Product"]),\
-#		(["Occurs_During"],["Dynamic_Process"],["Development_Phase"]),\
-#		(["Transcribes_Or_Translates_To"],["DNA","RNA"],["DNA_Product"]),\
-#		(["Occurs_In_Genotype"],["Dynamic_Process"],["Genotype"]),\
-#		(["Is_Localized_In"], ["Functional_Molecule", "Dynamic_Process"] , ["Tissue"]),\
-#		] :
-#			if ((et1 in arg1set) or (eg1 in arg1set) ) and  ((et2 in arg2set) or (eg2 in arg2set)) :
-#				return relset 
-#	
-#	#restriction on only one argument 
-#	for (relset, arg2set) in 	[ \
-#		(["Regulates_Accumulation"],   ["Functional_Molecule"] ),\
-#		(["Regulates_Development_Phase"], ["Development_Phase"] ),\
-#		(["Regulates_Molecule_Activity"], ["Molecule"] ),\
-#		(["Regulates_Expression"], ["DNA"] ),\
-#		(["Regulates_Process"],["Dynamic_Process"]),\
-#		(["Regulates_Tissue_Development"],["Tissue"]),\
-#		]:
-#		if  ((et2 in arg2set) or (eg2 in arg2set)) :
-#			return relset 
-#
-#	return ["Has_Sequence_Identical_To", "Is_Functionally_Equivalent_To", "Is_Linked_To"] # relation types that admit any arguments
-
 
 ##################################################################
 def get_candidate_pairs( listOfEntities, relation_types):
@@ -160,7 +73,6 @@ def get_candidate_pairs( listOfEntities, relation_types):
 			if e.entityType in ["Gene","Gene_Family" ,"Box", "Promoter", "RNA", "Protein", "Protein_Family", "Protein_Complex", "Protein_Domain","Hormone"] :
 				e2_lst.append( e )
 
-		
 	retlst = []
 	for e1 in e1_lst :
 		for e2 in e2_lst :
@@ -176,20 +88,11 @@ def produce_data_points(documentId , outdir ):
 	nlpObj  = coreNLP()
 	nlpObj.parse( documentId+".txt.out")
 	
-	#1. list of entities - from .a1
 	a1file = documentId + ".a1"
 	listOfEntities= get_entitylist_from_a1file( a1file , nlpObj )
 
-			
-	#4. Infer Label from .a2
 	a2file =     documentId+".a2" 
 	all_relations = get_all_relations(a2file)
-	####a2filedata = open(documentId+".a2").read()
-	
-
-	#2. generate candidate entity pairs
-	#2.1 filter out candiate based on event signature
-	#2.2 filter out candidates outside sentence boundaries ???? 
 
 	for ptr1 in range(len(listOfEntities)) :
 		for ptr2 in range(len(listOfEntities))  :
@@ -220,10 +123,6 @@ def produce_data_points(documentId , outdir ):
 			#get_feature_pos(e1, e2, documentId), \
 
 			print #end of line - feature
-
-	#3. Generate features for that pair from the document. 
-	#5. dump these datapoints entity-pair, label, features. 
-
 
 ######################################################################## add feature definitions here
 def get_feature_parsetree( e1, e2, nlpObj):
@@ -264,21 +163,4 @@ if __name__ == "__main__":
 	#produce_data_points( documentId ) #docmentId is SeeDev-binary-10662856-1.txt  #pmid-passageid
 
 	documentId = sys.argv[1]
-
-#	nlpObj  = coreNLP()
-#	nlpObj.parse(documentId+".txt.out")
-
-#	print nlpObj.sentenceBoundaries
-#	for sent in nlpObj.rawText  :
-#		print len(sent), sent 
-#	print nlpObj.getSentenceId(464, 505)
-
-#	a1file = documentId + ".a1"
-#	listOfEntities= get_entitylist_from_a1file( a1file , nlpObj )
-#	for e in listOfEntities :
-#		e.display()
-#		#print "\t", nlpObj.rawText[ e.sentenceId - 1].replace("\n", " ")
-#		print "\t", nlpObj.rawText[ e.sentenceId ].replace("\n", " ") 
-		
-
 	produce_data_points( documentId , outdir="/tmp/" ) #docmentId is SeeDev-binary-10662856-1.txt  #pmid-passageid
