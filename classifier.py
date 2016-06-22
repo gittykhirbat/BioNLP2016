@@ -119,8 +119,6 @@ def valid_relation_signature(relation_type, et1, et2): #entitytypes of first and
 
 	if relation_type =="Exists_In_Genotype" :
 		if et1 in ["RNA","Protein","Protein_Family","Protein_Complex","Protein_Domain","Hormone"]  and et2 in ["Genotype"]: return True
-		#todo: check : correct one but not helpful ? --
-		#if et1 not in ["Regulatory_Network", "Pathway","Environmental_Factor" ]  and et2 in ["Genotype"]: return True
 		else : return False
 
 	if relation_type =="Has_Sequence_Identical_To" :
@@ -824,11 +822,8 @@ def partitioned_classifier():
 	classification_method["Transcribes_Or_Translates_To"]=		"naive_bayes"
 	classification_method["Is_Linked_To"]=				"svc"  
 
-	#build_entity_map(train_examples) #only required if using get_feature_other_entities
-	#build_entity_map(test_examples)
 
-
-	for relation_type in  all_relations: # ["Has_Sequence_Identical_To"]:
+	for relation_type in  all_relations:
 		#try :
 		     #scikit_classifier( train_examples,  test_examples, relation_type, method=classification_method) 
 		     scikit_classifier( train_examples,  test_examples, relation_type, classification_method[relation_type] ) 
@@ -872,8 +867,3 @@ if __name__ == "__main__":
 		p, r, f = 0.0, 0.0 , 0.0
 
 	print "prec, recall, f1 ", p, r,f
-
-#	print "semantic constraints"
-#	semantic_constraints = get_entity_semantic_constraints()
-#	for (et1, et2) in   semantic_constraints :
-#		print  et1, et2, semantic_constraints[ (et1,et2) ]
