@@ -66,7 +66,7 @@ class coreNLP:
 		self.fullgraph_for_entity_pair= {}
 
 	def parse(self, fname):
-		print >>sys.stderr, "coreNLP parsing ", fname
+		#print >>sys.stderr, "coreNLP parsing ", fname
 		if len(self.documentId) > 0 :
 			print >>sys.stderr, "multiple parse calls on nlp obj ?"
 			sys.exit(-1)			
@@ -243,198 +243,6 @@ class coreNLP:
 		return vertices, edges, labels 
 
 	###
-	def get_dependency_graph_with_all_shortestpaths(self, sentenceId):
-		global LINEAR_EDGE_WEIGHT,  DEP_EDGE_WEIGHT, SHORTEST_PATH_EDGE_WEIGHT 
-		if sentenceId in self.dg_with_all_shortest_paths :  		
-			return  self.dg_with_all_shortest_paths[sentenceId] #G , depedges, nx.shortest_path(G)
-
-		G = nx.Graph() #undirected,
-		n = len( self.tokens[sentenceId] )
-		depedges= [] #dependency edges -directed ones from the dependency parse directly
-		#vertices are numbers to 0.. n-1 , i.e vertex i denotes i'th token
-		for i in range(n): 
-			G.add_node(i)
-		#edges coming from dependency graph 
-		#print "dependency graph string is ", self.dependencyGraph[ e1.sentenceId ]
-		degree_of_rootnode= 0
-		for dependency in re.findall( "([a-z:]+)\(.*?-(\d+), .*?-(\d+)\)"   ,  self.dependencyGraph[sentenceId]) :
-			(deptype,src, end) = dependency
-			src, end = int(src)-1, int(end)-1 #stanford dependency graph labels nodes from 1 to n, so convert it back to 0 to n-1
-			if src == -1 : 
-				degree_of_rootnode += 1
-				continue # ignore the root nodes
-			if end == -1 :
-				print >>sys.stderr, "problem in get_dependency_graph_with_all_shortestpaths ", self.documentId , sentenceId
-				sys.exit(-1)
-			G.add_edge( src, end, label = deptype )
-			depedges.append( (src,end,deptype) ) 
-		###
-		if degree_of_rootnode != 1 :
-			print >>sys.stderr, "root node degree issue", self.documentId, sentenceId
-			sys.exit(-1)
-
-		#print "Graph over text ", self.rawText[ e1.sentenceId ] 
-		#print "vertices: \t",  G.nodes()
-		#print "edges: \t",  G.edges()
-		self.dg_with_all_shortest_paths[ sentenceId ] =  (G, depedges, nx.shortest_path(G) ) 
-		return self.dg_with_all_shortest_paths[sentenceId] #G , depedges,  nx.shortest_path(G)
-
-	###############
-
-	def get_dependency_graph_with_shortest_path(self, e1, e2):
-		global LINEAR_EDGE_WEIGHT,  DEP_EDGE_WEIGHT, SHORTEST_PATH_EDGE_WEIGHT 
-		if e1.sentenceId != e2.sentenceId :
-			print >>sys.stderr, " problem .. we assume both entities are within a sentence "
-			sys.exit(-1)
-
-		tokens = self.tokens[e1.sentenceId]
-		postags= self.postags[e1.sentenceId]
-	
-
-		#pick the shortest path from amongst the shortest paths between src and dst nodes
-		src_nodes = e1.getTokenSpan()#self.getTokenSpan(e1.start, e1.end)
-		dst_nodes = e2.getTokenSpan()#self.getTokenSpan(e2.start, e2.end)
-
-		#print "for entites ", e1.get_display() , e2.get_display(), " at idxes ", src_nodes, dst_nodes  
-		G, depedges, all_paths = self.get_dependency_graph_with_all_shortestpaths(e1.sentenceId)  
-
-		shortest_path = []
-		for src in src_nodes :
-			for dst in dst_nodes :
-				try:
-					if len(shortest_path)==0 : shortest_path =  all_paths[src][dst] 
-					elif len(shortest_path) > len( all_paths[src][dst] ) : shortest_path  = all_paths[src][dst]
-				except:
-#					print "no path between ", src, dst
-#					print "Graph over text ", self.rawText[ e1.sentenceId ] 
-#					print "for entites ", e1.get_display() , e2.get_display(), " at idxes ", src_nodes, dst_nodes  
-#					print "vertices: \t",  G.nodes()
-#					print "edges: \t",  G.edges()
-#					print "raw dependency string ", self.dependencyGraph[e1.sentenceId]
-#					sys.exit(-1)
-					continue
-
-		### shortest path is ready
-
-		#print "shortest path:\t",  shortest_path
-		#print "shortest path(as tokens):\t",  [tokens[i] for i in shortest_path]
-		
-		return G, depedges, shortest_path
-
-	###########
-	def get_labelled_dependency_graph(self, e1, e2) :
-		global LINEAR_EDGE_WEIGHT,  DEP_EDGE_WEIGHT, SHORTEST_PATH_EDGE_WEIGHT 
-		if e1.sentenceId != e2.sentenceId :
-			print >>sys.stderr, " problem .. we assume both entities are within a sentence "
-			sys.exit(-1)
-
-		tokens = self.tokens[e1.sentenceId]
-		postags= self.postags[e1.sentenceId]
-		n = len(tokens)  #vertices are numbers to 0.. n-1 , i.e vertex i denotes i'th token
-       
-		undirectedGraph, depedges, shortest_path = self.get_dependency_graph_with_shortest_path(e1,e2)
-
-		#now create new directed weighted graph as described in all path graph kernel
-		#nodes carry labels and edges carry weights
-		depGraph = nx.DiGraph()
-		for i in range(n) : #vertices -its nodes are from token sequence directly 0-n
-			if len(shortest_path)>0 :#shortest path exists 
-				if  i==shortest_path[0] :  #must be arg1 
-					nodelabel= [ "ARG1_IP" , postags[i]+"_IP" ] 
-				elif i == shortest_path[-1] : #must be arg2
-					nodelabel= [ "ARG2_IP" , postags[i]+"_IP" ]
-				elif i in shortest_path : #node lies on shortest dependency path
-					nodelabel= [  tokens[i]+"_IP" , postags[i]+"_IP" ] 
-				else : #is out side the shortest path - default action
-					nodelabel = [ tokens[i], postags[i] ]
-			else: #default action again
-				nodelabel = [ tokens[i], postags[i] ]
-			##
-			depGraph.add_node( i, label= nodelabel ) 
-		
-		#shortest path as edge sequence to faciliate search below
-		shortest_path_edgesequence= []
-		for i in range(len(shortest_path) -1 ) :
-			shortest_path_edgesequence.append( (shortest_path[i], shortest_path[i+1])  )
-
-#		#from depedges, we take directed edges as well as new vertices from the dependency edge labels 
-		for (src,end,deptype) in depedges : 
-			#every labelled dependency edge to be broken into one more intermediate node - to incorporate the edge label as vertex label
-			newvertex  =  str(src)+":"+str(end)
-			#check if this edge is part of shortest dependency path
-			if (src,end) in shortest_path_edgesequence  or (end,src) in shortest_path_edgesequence :
-				nodelabel= [ deptype+"_IP"]
-				depGraph.add_node( newvertex, label= nodelabel )		
-				depGraph.add_edge( src, newvertex, weight= SHORTEST_PATH_EDGE_WEIGHT)
-				depGraph.add_edge( newvertex, end, weight= SHORTEST_PATH_EDGE_WEIGHT)
-			else:
-				nodelabel= [ deptype ]
-				depGraph.add_node( newvertex, label= nodelabel )		
-				depGraph.add_edge( src, newvertex, weight= DEP_EDGE_WEIGHT)
-				depGraph.add_edge( newvertex, end, weight= DEP_EDGE_WEIGHT)
-	
-		return depGraph		
-	#####
-	def getFullGraph(self, e1, e2):# the graph as defined in http://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-S11-S2
-		if (e1,e2) in  self.fullgraph_for_entity_pair :
-			return self.fullgraph_for_entity_pair[(e1,e2)]
-
-		#form the full graph, i.e labels and adjaceny matrices L, A for each of the entity pair (e1-e2) 
-		nodes,  edges, labels =self.get_labelled_linearsequence(e1,e2)
-		#nodes=[ l0,l1...ln ]
-		#edges =  [ (src,end,edge_weight)*]
-		#labels: labels[n] is labels of node n = [ A, B, ...]` 
-		
-		#incorporate the other dependency graph
-		#nodes
-		depGraph = self.get_labelled_dependency_graph(e1,e2)
-		for n in depGraph.nodes():
-			nodes.append( n )
-		#edges
-		for (a,b) in depGraph.edges() : 
-			edges.append(   (a,b, depGraph.edge[a][b]['weight'])  )
-		#labels
-		for n in depGraph.nodes(): 
-			#print n , depGraph.node[n]['label']
-			labels[n]= depGraph.node[n]['label']
-		#print "labels", labels
-		#print "nodes", nodes
-		#print "edges", edges 
-
-		#return labels, nodes, edges #
-		self.fullgraph_for_entity_pair[(e1,e2) ] = (labels, nodes, edges) #
-		return self.fullgraph_for_entity_pair[(e1,e2) ]
-
-#################################################
-def getGraphMatrix(labels_to_ids, node_labels , nodes, edges): #to make matrix G ..	
-	#now make label allocation matrix Lmat  (L*V) and adjacency matrix Adj (V*V) for first graph
-	nodesToIds= {}
-	for n in nodes :
-		if n in nodesToIds : 
-			print >>sys.stderr, "duplicate nodes !!"
-			sys.exit(-1)
-		else:
-			nodesToIds[n] = len(nodesToIds)
-
-	n = len(nodesToIds)
-	l = len(labels_to_ids)
-
-	Adj = np.zeros(n*n).reshape(n,n)
-	for (src,end,wt) in edges : 
-		Adj[nodesToIds[src]][nodesToIds[end]]	= wt
-	##
-	I =  np.identity(n)  #identity matrix
-	##
-	Lmat =  np.zeros( l* n ).reshape(l,n) 
-	for n in node_labels:
-		for l in node_labels[n] :
-			Lmat[labels_to_ids[l]][nodesToIds[n]] = 1.0
-	####
-	W =  linalg.inv( I - Adj) - I
-	
-	G =  np.mat(Lmat)  *  np.mat(W) *  np.mat(Lmat.transpose())  
-
-	return G   #l*l
 
 ################################################################
 __entity_to_doc_map= {}
@@ -451,55 +259,6 @@ def get_doc_obj(e1,e2):
 	return __entity_to_doc_map[e1.documentId]
 
 ################################################################
-def  graphKernel(e1, e2, e3, e4):
-	obj1 = get_doc_obj(e1,e2)
-	obj2 = get_doc_obj(e3,e4)
-
-	l1, n1, edges1 = obj1.getFullGraph(e1, e2)
-	l2, n2, edges2 = obj2.getFullGraph(e3, e4)
-	
-	#first collect all labels - and assign an id to it
-	all_labels = {}
-	for ll in l1.values():
-		for l in ll :  
-			if l not in all_labels : all_labels[l] = len(all_labels)
-	###
-	for ll in l2.values():
-		for l in ll :  
-			if l not in all_labels : all_labels[l] = len(all_labels)
-	##
-	G1 = getGraphMatrix(all_labels, l1, n1, edges1) 
-	G2 = getGraphMatrix(all_labels, l2, n2, edges2) 
-
-	retval = 0
-	for li in all_labels:
-		for lj in all_labels :
-			i =  all_labels[li]
-			j =  all_labels[lj]
-			#print "accessing indexes, ", i, j , li, lj
-			p1 = G1[i,j]
-			p2= G2[i,j]
-			#print "got ", p1, p2
-			retval += (p1*p2)
-			
-	return retval 
-
-#####################################################################################################################
-def testDepKernel():
-	s1="T1@AGL15@Protein@0@5@0@data/BioNLP-ST-2016_SeeDev-binary_train/SeeDev-binary-10662856-1"
-	s2="T2@AGAMOUS-like 15@Protein@7@22@0@data/BioNLP-ST-2016_SeeDev-binary_train/SeeDev-binary-10662856-1"
-	e1 = clsEntity.createEntityFromString(s1)
-	e2 = clsEntity.createEntityFromString(s2)
-
-	s3="T27@AG@Protein@1220@1222@6@data/BioNLP-ST-2016_SeeDev-binary_train/SeeDev-binary-10662856-1"
-	s4="T26@AGAMOUS@Protein@1211@1218@6@data/BioNLP-ST-2016_SeeDev-binary_train/SeeDev-binary-10662856-1"
-
-	e3 = clsEntity.createEntityFromString(s3)
-	e4 = clsEntity.createEntityFromString(s4)
-
-	return graphKernel(e1, e2, e3, e4)
-	
-#####################################################################################################################
 
 def testVariables():
 	str1= "T1@AGL15@Protein@0@5@0@data/BioNLP-ST-2016_SeeDev-binary_train/SeeDev-binary-10662856-1"
@@ -524,6 +283,5 @@ def testVariables():
 ###################				
 if __name__ == "__main__":
 
-		
 	print testDepKernel()
 
