@@ -511,29 +511,14 @@ def apply_semantic_constraints(test_points, relation_type, classifier_prediction
 		cp = classifier_predictions[idx]
 		(e1, e2, true_label, features) = test_points[idx]
 		possible_relations = get_possible_relations( e1.entityType, e2.entityType) 
-		#case 1 : change with confidence : strict domain constraint
 		if relation_type not in possible_relations:
 			final_labels.append( "NOT_RELATED" ) 
 			continue
-		#case 2: related => specific relation
-		#if cp!="NOT_RELATED" and len(possible_relations) ==1  :
-		#	final_labels.append( possible_relations[0] )
-		#	continue 
-		#case 3: relation -- got confused
-		#if cp!="NOT_RELATED" :
-		#	final_labels.append( relation_type) 
-		#	continue
-
-# hurts perf.	#fall back to cooccurrence classifier for these 
-#		if (e1.sentenceId==e2.sentenceId) and relation_type in ["Exists_At_Stage" ,"Is_Involved_In_Process" ]:
-#			final_labels.append(relation_type)
 			continue
 
 		#default
 		final_labels.append(cp)
-		###print "changed labels from -to", cp, possible_relations[0], "for true label", true_label, "for cand", e1.get_display(), e2.get_display() 
-		##
-	####
+	
 	return final_labels 
 ###########
 dump_predictions={}### collate predictions ( for writing into into .a2 files for evalation)
