@@ -39,15 +39,6 @@ class clsEntity:
 			sys.exit(-1)
 		return clsEntity( entityId , entityDescription, entityType, int(start), int(end), int(sentenceId), documentId  )
 
-
-###########################################
-##globals
-LINEAR_EDGE_WEIGHT = 0.9 # http://www.aclweb.org/anthology/W08-0601
-DEP_EDGE_WEIGHT =  0.3
-SHORTEST_PATH_EDGE_WEIGHT = 0.9
-
-
-
 ### wrapper around the stanford corenlp parse of a sentence
 class coreNLP:
 	def __init__ (self):
