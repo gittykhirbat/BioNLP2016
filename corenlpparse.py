@@ -201,30 +201,3 @@ def get_doc_obj(e1,e2):
 
 	return __entity_to_doc_map[e1.documentId]
 
-################################################################
-
-def testVariables():
-	str1= "T1@AGL15@Protein@0@5@0@data/BioNLP-ST-2016_SeeDev-binary_train/SeeDev-binary-10662856-1"
-	str2= "T4@MADS domain family@Protein_Family@43@61@0@data/BioNLP-ST-2016_SeeDev-binary_train/SeeDev-binary-10662856-1"
-
-	e1 = clsEntity.createEntityFromString(str1)
-	e2 = clsEntity.createEntityFromString(str2)
-	myobj= coreNLP()
-	myobj.parse( e1.documentId + ".txt.out" )
-	#print "checking for ", e1.get_display(), e2.get_display()
-	#print "in ",  myobj.get_display( e1.sentenceId)
-
-	tokspan1=  myobj.getTokenSpan( e1.start, e1.end)
-	tokspan2=  myobj.getTokenSpan( e2.start, e2.end)
-	#print "e1 tok span ", tokspan1
-	#print "e2 tok span ", tokspan2
-	#print "e1 tokens from its span ", [myobj.tokens[e1.sentenceId][i] for i in tokspan1 ]
-	#print "e2 tokens from its span ", [myobj.tokens[e2.sentenceId][i] for i in tokspan2 ]
-
-	return  myobj, e1, e2
-				
-###################				
-if __name__ == "__main__":
-
-	print testDepKernel()
-
