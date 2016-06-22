@@ -186,54 +186,6 @@ class coreNLP:
 		 	+ "\t", self.dependencyGraph[i]  \
 			+ "\n-------------------------------------------------------------------\n"
 
-	def get_labelled_linearsequence(self, e1, e2) :
-		global LINEAR_EDGE_WEIGHT,  DEP_EDGE_WEIGHT, SHORTEST_PATH_EDGE_WEIGHT 
-		if e1.sentenceId != e2.sentenceId :
-			print >>sys.stderr, " problem .. we assume both entities are within a sentence "
-			sys.exit(-1)
-
-		tokens = self.tokens[e1.sentenceId]
-		tokboundaries = self.tokboundaries[e1.sentenceId]
-		postags= self.postags[e1.sentenceId]
-		n = len(tokens)  #vertices are numbers to 0.. n-1 , i.e vertex i denotes i'th token
-        	
-		#the vertex set - name it as l0 .. to ln-1 . 
-		vertices= [  "l"+str(i) for i in range(n) ]
-		#and edges (in chain fashion) 
-		edges= [ (vertices[i], vertices[i+1], LINEAR_EDGE_WEIGHT)  for i in range(n-1) ]  #a edge is a triple(start,end,weight) 
-		
-		#first get all labels -- it is token text and pos tags, decorated with _M, _A, _B for middle begin and after
-		labels= {} #map of vertex to a list of labels
-		for i in range(n):  labels[ vertices[i] ] = [] #create empty set - initialization
-
-		#now create the actual labels - token spans described as 0.. p1... p2....p3..p4 --   (p1,p2) =e1 and (p3,p4) = e2
-		tokspan1=  e1.getTokenSpan() #self.getTokenSpan( e1.start, e1.end)
-		tokspan2=  e2.getTokenSpan() #self.getTokenSpan( e2.start, e2.end)
-		try :
-			p1, p2 = min(tokspan1), max(tokspan1)
-			p3, p4 = min(tokspan2), max(tokspan2)
-		except :
-			print >>sys.stderr, "prob token spans for ", tokspan1, tokspan2, e1.get_display(), e2.get_display()
-			sys.exit(-1)
-
-		#print "sequence labeling  as "  , p1, p2 , p3, p4
-		for i in range(n):
-			if i < p1:
-				labels[ vertices[i] ].append( tokens[i] +"_B" ) #before 
-				labels[ vertices[i] ].append( postags[i] +"_B" ) #before 
-			elif i > p4 :
-				labels[ vertices[i] ].append( tokens[i] +"_A" ) #after
-				labels[ vertices[i] ].append( tokens[i] +"_A" ) #after 
-			elif i > p2  and i < p3 :  #it is in middle
-				labels[ vertices[i] ].append( tokens[i] +"_M" ) #middle 
-				labels[ vertices[i] ].append( tokens[i] +"_M" ) #middle 
-			else:  #must be part of e1 or e2 -- todo CHECK if there is a need to distinguish ARG1-ARG2
-				labels[ vertices[i] ].append( "ENTITY") 
-				labels[ vertices[i] ].append( postags[i]  ) 
-		### labels are done 				
-		return vertices, edges, labels 
-
-	###
 
 ################################################################
 __entity_to_doc_map= {}
