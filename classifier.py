@@ -69,21 +69,6 @@ def get_entity_semantic_constraints( ) :
 	#print semantic_constraints
 	return semantic_constraints 
 
-
-################################################
-#def get_entity_group(etype ) : #entity type to group
-#	if etype in ["RNA","Protein","Protein_Family","Protein_Complex","Protein_Domain"]:	return "DNA_Product"
-#	if etype in ["Gene","Gene_Family","Box,Promoter","Box", "Promoter"]:			return "DNA" 			
-#	if etype in ["DNA_Product","Hormone",]:							return "Functional_Molecule"	
-#	if etype in ["DNA","Functional_Molecule"]:						return "Molecule" 		
-#	if etype in ["Regulatory_Network","Pathway"]:						return "Dynamic_Process"   
-#	if etype in ["Tissue","Development_Phase","Genotype"]:					return "Internal_Factor"   
-#	if etype in ["Internal_Factor","Environmental_Factor"]:					return "Factor"			
-#
-#	#return etype #if no grouping possible
-#	print >>sys.stderr, "invalid entity type ", etype
-#	sys.exit(-1)
-#
 ########################################3		
 def get_possible_relations(et1, et2):
 	global all_relations
@@ -329,9 +314,6 @@ def get_regular_features(fields, e1, e2, relation_type):
 			word = word+"_mid"
 		features[word] = features.get(word, 0.0 ) + 1.0
 
-#	for word in fields["Bag_Of_Words"].split(): # not lemmatized by corenlp actual raw text
-#		word= word+"_raw"
-#		features[word] = features.get(word, 0.0 ) + 1.0
 
 	#feature POS tag sequence
 	span1 = e1.getTokenSpan()
@@ -354,43 +336,12 @@ def get_regular_features(fields, e1, e2, relation_type):
 			else:  	features["verb_within_entity_"+ nlpObj.lemmas[e1.sentenceId][i] ] = 1.0 
  
 
-	#shortest dependency path features #reduced f score
-	G, depedges, shortest_path = nlpObj.get_dependency_graph_with_shortest_path(e1, e2)
-	for (src,end,deptype) in depedges:
-		if end in span1 : features["depedge_src1_"+ nlpObj.lemmas[e1.sentenceId][src]] = 1.0
-		if end in span2 : features["depedge_src2_"+ nlpObj.lemmas[e1.sentenceId][src]] = 1.0
-		#if src in span1 or src in span2:  features["depedge_end_"+ nlpObj.lemmas[e1.sentenceId][end]] = 1.0			
-		if src in span1 :  features["depedge_end1_"+ nlpObj.lemmas[e1.sentenceId][end]] = 1.0			
-		if src in span2 :  features["depedge_end2_"+ nlpObj.lemmas[e1.sentenceId][end]] = 1.0			
-			
-
-
-	#features["sdp_postags"]  = "_".join(  [nlpObj.postags[e1.sentenceId][i] for i in  shortest_path] )
-	#features["sdp_lemmas"]  = "_".join(  [nlpObj.lemmas[e1.sentenceId][i] for i in  shortest_path] )
-	for i in  shortest_path : 
-		word = nlpObj.lemmas[e1.sentenceId][i]
-		postag = nlpObj.postags[e1.sentenceId][i]
-		features["sdp_lemma_"+ word] = 1.0
-		features["sdp_postag_"+ word] = 1.0
-		if postag.startswith("VB") :
-			features["sdp_verb_"+word]= 1.0
 
 	get_vocabulary_features(features, nlpObj, e1, e2, relation_type)
 	###
-	##get_feature_other_entities(features, e1, e2)
-	
-#	features["entitytype1_"+e1.entityType]=1.0
-#	features["entitytype2_"+e2.entityType]=1.0
+
 	features["entitytype_signature_"+e1.entityType+"_"+e2.entityType]=1.0
 
-#	todo: check these bigrams again	
-#	word_list = ["occurs during", "expressed during", "established during", "accumulates during", "present during", "active during", "implicated during", "accumulate in", "present in", "active in", "involved in","steady state-level","gene expression","gene transcription","core of"]
-#
-#	for word in word_list:
-#        	if word in nlpObj.rawText:
-#            		features["trigger_"+word]=1.0
-#        	else:
-#            		features["trigger_"+word]=0.0
 
 		### start of relation specific features
 	get_relation_specific_features(features,nlpObj, e1, e2, relation_type)
@@ -409,11 +360,6 @@ def get_relation_specific_features(features, nlpObj, e1, e2, relation_type) :
 		if re.search(p1, sentence) or  re.search(p2,sentence):
 			features["trigger_pattern_brackets"] = 1.0
 
-#	if relation_type in ["Is_Involved_In_Process"]:
-#		p1 =  "presence of.*"+ed1+".*in.*"+ed2 
-#		p2 =  "presence of.*"+ed2+".*in.*"+ed1
-#		if re.search(p1, sentence) or re.search(p2, sentence ):
-#			features["trigger_pattern_presence"] = 1.0 
 
 ########################################
 def get_feature_other_entities(features, e1, e2):
